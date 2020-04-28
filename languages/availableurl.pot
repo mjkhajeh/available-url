@@ -1,0 +1,127 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: Available url\n"
+"POT-Creation-Date: 2020-01-20 12:46+0330\n"
+"PO-Revision-Date: 2020-01-20 12:46+0330\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: available-url.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: Backend/Menu.php:25 Backend/Menu.php:26 Backend/Menu.php:86
+msgid "Available URL"
+msgstr ""
+
+#: Backend/Menu.php:55 Backend/Options/Roles.php:100
+#: Backend/Options/Users.php:100
+msgid "http://... or https://..."
+msgstr ""
+
+#: Backend/Menu.php:56 Backend/Options/Roles.php:104
+#: Backend/Options/Users.php:104
+msgid "Select settings"
+msgstr ""
+
+#: Backend/Menu.php:57 Backend/Options/Roles.php:105
+#: Backend/Options/Users.php:105
+msgid "It's a frontend URL"
+msgstr ""
+
+#: Backend/Menu.php:58 Backend/Options/Roles.php:106
+#: Backend/Options/Users.php:106
+msgid "Exactly this address"
+msgstr ""
+
+#: Backend/Menu.php:112
+msgid "No tabs actived"
+msgstr ""
+
+#: Backend/Options/Roles.php:28 Backend/Options/Roles.php:57
+msgid "Roles"
+msgstr ""
+
+#: Backend/Options/Roles.php:64
+msgid "Select role"
+msgstr ""
+
+#: Backend/Options/Roles.php:87 Backend/Options/Users.php:87
+msgid "Title"
+msgstr ""
+
+#: Backend/Options/Roles.php:88 Backend/Options/Users.php:88
+msgid "URL"
+msgstr ""
+
+#: Backend/Options/Roles.php:89 Backend/Options/Settings.php:28
+#: Backend/Options/Settings.php:42 Backend/Options/Users.php:89
+msgid "Settings"
+msgstr ""
+
+#: Backend/Options/Roles.php:114 Backend/Options/Users.php:114
+msgid "+ Add URL"
+msgstr ""
+
+#: Backend/Options/Settings.php:46
+msgid "Settings saved."
+msgstr ""
+
+#: Backend/Options/Settings.php:49
+msgid "Dismiss this notice."
+msgstr ""
+
+#: Backend/Options/Settings.php:59
+msgid "Administrators status"
+msgstr ""
+
+#: Backend/Options/Settings.php:66
+msgid "Check for active changes for administrators(Role and Users)"
+msgstr ""
+
+#: Backend/Options/Settings.php:74
+msgid "Default redirect location(Backend)"
+msgstr ""
+
+#: Backend/Options/Settings.php:86
+msgid "Default redirect location(Frontend)"
+msgstr ""
+
+#: Backend/Options/Users.php:28 Backend/Options/Users.php:57
+msgid "Users"
+msgstr ""
+
+#: Backend/Options/Users.php:64
+msgid "Select user"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Available url"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://wordpress.org/plugins/available-url"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Let users just view urls you want"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Mohammad Jafar Khajeh"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://zantium.ir"
+msgstr ""
