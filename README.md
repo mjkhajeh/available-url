@@ -9,8 +9,6 @@ Available URL has some hooks for programmers. Also when a URL redirected, In loc
 ### One more thing about Available URL:
 Available URL uses i18n, So you can translate it for your language.
 
-You can use [GitHub](https://github.com/mjkhajeh/availableurl) plugin page to development it.
-
 ### Installation
 
 1. Upload the plugin files to the `/wp-content/plugins/available-url` directory, or install the plugin through the WordPress plugins screen directly.
