@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Available url\n"
-"POT-Creation-Date: 2020-01-20 12:40+0330\n"
-"PO-Revision-Date: 2020-01-20 12:46+0330\n"
+"POT-Creation-Date: 2020-09-06 17:46+0430\n"
+"PO-Revision-Date: 2020-09-06 17:46+0430\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -21,56 +21,54 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: Backend/Menu.php:25 Backend/Menu.php:26 Backend/Menu.php:86
+#: Backend/Menu.php:25 Backend/Menu.php:26 Backend/Menu.php:84
 msgid "Available URL"
 msgstr "Available URL"
 
-#: Backend/Menu.php:55 Backend/Options/Roles.php:100
-#: Backend/Options/Users.php:100
+#: Backend/Menu.php:55 Backend/Options/Roles.php:106
+#: Backend/Options/Users.php:106 Includes/Templates/url_row.php:9
 msgid "http://... or https://..."
 msgstr "http://... یا https://..."
 
-#: Backend/Menu.php:56 Backend/Options/Roles.php:104
-#: Backend/Options/Users.php:104
+#: Backend/Menu.php:56 Backend/Options/Roles.php:110
+#: Backend/Options/Users.php:110 Includes/Templates/url_row.php:12
 msgid "Select settings"
 msgstr "انتخاب تنظیمات"
 
-#: Backend/Menu.php:57 Backend/Options/Roles.php:105
-#: Backend/Options/Users.php:105
+#: Backend/Menu.php:57
 msgid "It's a frontend URL"
 msgstr "این یک آدرس در فرانت اند است"
 
-#: Backend/Menu.php:58 Backend/Options/Roles.php:106
-#: Backend/Options/Users.php:106
+#: Backend/Menu.php:58
 msgid "Exactly this address"
 msgstr "دقیقا این آدرس"
 
-#: Backend/Menu.php:112
+#: Backend/Menu.php:110
 msgid "No tabs actived"
 msgstr "هیچ تبی فعال نیست"
 
-#: Backend/Options/Roles.php:28 Backend/Options/Roles.php:57
+#: Backend/Options/Roles.php:29 Backend/Options/Roles.php:58
 msgid "Roles"
 msgstr "نقش ها"
 
-#: Backend/Options/Roles.php:64
+#: Backend/Options/Roles.php:65
 msgid "Select role"
 msgstr "انتخاب نقش"
 
-#: Backend/Options/Roles.php:87 Backend/Options/Users.php:87
+#: Backend/Options/Roles.php:93 Backend/Options/Users.php:93
 msgid "Title"
 msgstr "عنوان"
 
-#: Backend/Options/Roles.php:88 Backend/Options/Users.php:88
+#: Backend/Options/Roles.php:94 Backend/Options/Users.php:94
 msgid "URL"
 msgstr "آدرس(URL)"
 
-#: Backend/Options/Roles.php:89 Backend/Options/Settings.php:28
-#: Backend/Options/Settings.php:42 Backend/Options/Users.php:89
+#: Backend/Options/Roles.php:95 Backend/Options/Settings.php:29
+#: Backend/Options/Settings.php:42 Backend/Options/Users.php:95
 msgid "Settings"
 msgstr "تنظیمات"
 
-#: Backend/Options/Roles.php:114 Backend/Options/Users.php:114
+#: Backend/Options/Roles.php:130 Backend/Options/Users.php:130
 msgid "+ Add URL"
 msgstr "+ آدرس جدید"
 
@@ -95,17 +93,21 @@ msgstr ""
 msgid "Default redirect location(Backend)"
 msgstr "آدرس پیشفرض تغییر مسیر در بک اند"
 
-#: Backend/Options/Settings.php:86
-msgid "Default redirect location(Frontend)"
-msgstr "آدرس پیشفرض تغییر مسیر در فرونت انت"
-
-#: Backend/Options/Users.php:28 Backend/Options/Users.php:57
+#: Backend/Options/Users.php:29 Backend/Options/Users.php:58
 msgid "Users"
 msgstr "کاربران"
 
-#: Backend/Options/Users.php:64
+#: Backend/Options/Users.php:65
 msgid "Select user"
 msgstr "انتخاب کاربر"
+
+#: Includes/Utils.php:163
+msgid "Inaccessibility URL"
+msgstr "آدرس غیرمجاز"
+
+#: Includes/Utils.php:167
+msgid "Regardless other URL parameters"
+msgstr "صرفنظر از دیگر پارامترها"
 
 #. Plugin Name of the plugin/theme
 msgid "Available url"
@@ -124,5 +126,8 @@ msgid "Mohammad Jafar Khajeh"
 msgstr "محمدجعفر خواجه"
 
 #. Author URI of the plugin/theme
-msgid "https://zantium.ir"
-msgstr "https://zantium.ir"
+msgid "https://mjkhajeh.ir"
+msgstr "https://mjkhajeh.ir"
+
+#~ msgid "Default redirect location(Frontend)"
+#~ msgstr "آدرس پیشفرض تغییر مسیر در فرانت انت"

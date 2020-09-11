@@ -1,11 +1,11 @@
 === Available URL ===
 Contributors: mjkhajeh
 Donate link: https://zarinp.al/@zantium
-Tags: url,available url,availableurl,urls,demo creator,create demo,user urls,role urls
+Tags: url,available url,availableurl,urls,demo creator,create demo,user urls,role urls,admin
 Requires at least: 4.7
-Tested up to: 5.2
+Tested up to: 5.5
 Stable tag: 4.6
-Requires PHP: 7.0
+Requires PHP: 5.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,10 +18,27 @@ Most used of this plugin will be in create demo for plugins & themes. You can in
 
 Available URL has some hooks for programmers. Also when a URL redirected, In location URL will be a request called: 'redirect_by' this will be useful for sometimes.
 
+= Emergency reset =
+In 1.3.2.7 I added a emergency way for disable admin redirects.
+For use that, Just open this URL(Before that, Replace "example.com" with your domain):
+`http://example.com?availableurl_reset_admin=true`
+
 = One more thing about Available URL: =
 Available URL uses i18n, So you can translate it for your language.
 
 You can use [GitHub](https://github.com/mjkhajeh/availableurl) plugin page to development it.
+
+== Changelog ==
+= 1.0.0.0 =
+* First release of available URL
+
+= 1.3.2.7 =
+* Change and Fix bugs in redirect function
+* Change URL settings
+* Fix translates
+* Fix bug of "New Row" button
+* Functions are now optimized
+* Add emergency reset for admins 
 
 == Installation ==
 

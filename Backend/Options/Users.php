@@ -1,9 +1,10 @@
 <?php
 namespace AvailableURL\Backend\Options;
 
-use \AvailableURL\Includes\Classes\Functions as Functions;
+use AvailableURL\Utils as Utils;
 
 class Users {
+	PRIVATE $PREFIX = 'availableurl_';
 	/**
 	 * Creates or returns an instance of this class.
 	 *
@@ -11,7 +12,7 @@ class Users {
 	 */
 	public static function get_instance() {
 		static $instance = null;
-		if($instance === null){
+		if( $instance === null ) {
 			$instance = new self;
 		}
 		return $instance;
@@ -34,8 +35,6 @@ class Users {
 	}
 
 	public function view() {
-		$functions = Functions::get_instance();
-
 		$main_url = menu_page_url( "availableurl", false ); // Get url of the page
 		$main_url = add_query_arg( "tab", "users", $main_url ); // Add tab to main url
 
@@ -46,13 +45,15 @@ class Users {
 		$user = $users[0];
 		if( isset( $_GET['user'] ) && $_GET['user'] ) {
 			$active_user = sanitize_text_field( $_GET['user'] );
-			$user = get_user( $active_user );
+			$user = get_user_by( 'id', $active_user );
 		}
 
 		$this->save( $active_user );
 
 		// Get options of active user
-		$urls = $functions->get_user_urls( $active_user );
+		$urls = Utils::get_data( $active_user, 'user' );
+
+		$url_settings = Utils::get_url_settings();
 		?>
 		<h2><?php _e( "Users", "availableurl" ) ?></h2>
 		<h3><?php echo "{$user->display_name} (#{$user->ID})" ?></h3>
@@ -60,13 +61,13 @@ class Users {
 		<table class="form-table">
 			<tr>
 				<th>
-					<label for="availableurl_select_user">
+					<label for="<?php echo $this->PREFIX ?>select_user">
 						<?php _e( "Select user", "availableurl" ) ?>
 					</label>
 				</th>
 
 				<td>
-					<select id="availableurl_select_user" class="availableurl_select">
+					<select id="<?php echo $this->PREFIX ?>select_user" class="availableurl_select">
 						<?php
 						foreach( $users as $user_class ) {
 							$user_url = add_query_arg( "user", $user_class->ID, $main_url );
@@ -79,9 +80,14 @@ class Users {
 		</table>
 
 		<hr>
-		
+		<div id="availableurl_templates">
+			<?php
+			$template_type = "user";
+			include_once( AVAILABLEURL_DIR . "Includes/Templates/url_row.php" );
+			?>
+		</div>
 		<form method="post" action="">
-			<table class="form-table" id="availableurl_table_urls">
+			<table class="form-table" id="<?php echo $this->PREFIX ?>table_urls">
 				<thead>
 					<tr>
 						<th><?php _e( "Title" ) ?></th>
@@ -91,26 +97,36 @@ class Users {
 				</thead>
 				<tbody>
 					<?php foreach( $urls as $id => $data ) { ?>
-						<tr class="availableurl_user_url_row" id="availableurl_user_url_<?php echo $id ?>" data-id="<?php echo $id ?>">
+						<tr class="<?php echo $this->PREFIX ?>user_url_row" id="<?php echo $this->PREFIX ?>user_url_<?php echo $id ?>" data-id="<?php echo $id ?>">
 							<td>
-								<input type="text" name="availableurl_title[]" id="availableurl_title_<?php echo $id ?>" value="<?php echo $data['title'] ?>">
+								<input type="text" name="<?php echo $this->PREFIX ?>title[]" id="<?php echo $this->PREFIX ?>title_<?php echo $id ?>" value="<?php echo $data['title'] ?>">
 							</td>
 
 							<td>
-								<input type="url" name="availableurl_url[]" id="availableurl_url_<?php echo $id ?>" placeholder="<?php _e( "http://... or https://...", 'availableurl' ) ?>" value="<?php echo $data['url'] ?>">
+								<input type="url" name="<?php echo $this->PREFIX ?>url[]" id="<?php echo $this->PREFIX ?>url_<?php echo $id ?>" placeholder="<?php _e( "http://... or https://...", 'availableurl' ) ?>" value="<?php echo $data['url'] ?>">
 							</td>
 
 							<td>
-								<select name="availableurl_settings_<?php echo $id ?>[]" id="availableurl_settings_<?php echo $id ?>" class="availableurl_select" data-placeholder="<?php _e( "Select settings", "availableurl" ) ?>" multiple data-width="100%">
-									<option value="frontend" <?php selected( true, $data['settings']['frontend'] ) ?>><?php _e( "It's a frontend URL", "availableurl" ) ?></option>
-									<option value="exactly_url" <?php selected( true, $data['settings']['exactly_url'] ) ?>><?php _e( "Exactly this address", "availableurl" ) ?></option>
+								<select name="<?php echo $this->PREFIX ?>settings_<?php echo $id ?>[]" id="<?php echo $this->PREFIX ?>settings_<?php echo $id ?>" class="availableurl_select" data-placeholder="<?php _e( "Select settings", "availableurl" ) ?>" multiple data-width="100%">
+									<?php
+									if( $url_settings ) {
+										foreach( $url_settings as $setting_id => $setting_data ) {
+											if( empty( $data['settings'][$setting_id] ) ) {
+												$data['settings'][$setting_id] = $setting_data['default'];
+											}
+											?>
+											<option value="<?php echo $setting_id ?>" <?php selected( true, $data['settings'][$setting_id] ) ?>><?php echo $setting_data['title'] ?></option>
+											<?php
+										}
+									}
+									?>
 								</select>
 							</td>
 						</tr>
 					<?php } ?>
 				</tbody>
 			</table>
-			<button class="button" id="availableurl_add_url">
+			<button class="button" id="<?php echo $this->PREFIX ?>add_url">
 				<?php _e( "+ Add URL", "availableurl" ) ?>
 			</button>
 			<?php submit_button() ?>
@@ -120,8 +136,8 @@ class Users {
 
 	private function save( $active_user ) {
 		if( !empty( $_POST ) ) {
-			if( isset( $_POST['availableurl_url'] ) && !empty( $_POST['availableurl_url'] ) ) {
-				$urls = $_POST['availableurl_url'];
+			if( !empty( $_POST["{$this->PREFIX}url"] ) ) {
+				$urls = $_POST["{$this->PREFIX}url"];
 
 				$result = array();
 				foreach( $urls as $index => $url ) {
@@ -129,28 +145,18 @@ class Users {
 						$index	= sanitize_text_field( $index );
 						$url	= esc_url( $url );
 						$url	= stripslashes( $url );
-						$url	= trailingslashit( $url );
 						
 						// Get title
-						$title 		= "";
-						if( isset( $_POST['availableurl_title'][$index] ) && $_POST['availableurl_title'][$index] ) {
-							if( isset( $_POST['availableurl_title'][$index] ) && $_POST['availableurl_title'][$index] ) {
-								$title	= sanitize_text_field( $_POST['availableurl_title'][$index] );
-							}
+						$title = "";
+						if( isset( $_POST["{$this->PREFIX}title"][$index] ) ) {
+							$title = sanitize_text_field( $_POST["{$this->PREFIX}title"][$index] );
 						}
 
 						// Get setting data
-						$settings	= array(
-							'frontend'		=> false,
-							'exactly_url'	=> false
-						);
-						if( isset( $_POST["availableurl_settings_{$index}"] ) && !empty( $_POST["availableurl_settings_{$index}"] ) ) {
-							foreach( $settings as $setting_name => $value ) {
-								foreach( $_POST["availableurl_settings_{$index}"] as $post_setting_index => $post_setting_value ) {
-									if( $post_setting_value == $setting_name ) {
-										$settings[$setting_name] = true;
-									}
-								}
+						$settings = array();
+						if( !empty( $_POST["{$this->PREFIX}settings_{$index}"] ) ) {
+							foreach( $_POST["{$this->PREFIX}settings_{$index}"] as $setting_name ) {
+								$settings[$setting_name] = true;
 							}
 						}
 						

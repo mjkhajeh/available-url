@@ -3,16 +3,13 @@
 Plugin Name: Available url
 Plugin URI: https://wordpress.org/plugins/available-url
 Description: Let users just view urls you want
-Version: 1.0.0.0
+Version: 1.3.2.7
 Author: Mohammad Jafar Khajeh
-Author URI: https://zantium.ir
+Author URI: https://mjkhajeh.ir
 Text Domain: availableurl
-Domain Path:  /languages
+Domain Path: /languages
 */
-
 namespace AvailableURL;
-
-use \AvailableURL\Includes\Classes\Functions as Functions;
 
 class Init {
 	/**
@@ -22,7 +19,7 @@ class Init {
 	 */
 	public static function get_instance() {
 		static $instance = null;
-		if($instance === null){
+		if( $instance === null ) {
 			$instance = new self;
 		}
 		return $instance;
@@ -34,6 +31,7 @@ class Init {
 		$this->constants();
 		$this->includes();
 
+		add_action( 'after_setup_theme', array( $this, "reset" ), 1 );
 		add_action( 'after_setup_theme', array( $this, "redirect" ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'backend_scripts_register' ), 2 );
@@ -52,7 +50,7 @@ class Init {
 	}
 
 	private function includes() {
-		include_once( AVAILABLEURL_DIR . "Includes/Classes/Functions.php" );
+		include_once( AVAILABLEURL_DIR . "Includes/Utils.php" );
 		include_once( AVAILABLEURL_DIR . "Backend/Menu.php" );
 
 		include_once( AVAILABLEURL_DIR . "Backend/Options/Roles.php" );
@@ -66,18 +64,35 @@ class Init {
 			wp_enqueue_style( 'select2style', AVAILABLEURL_URI . 'assets/css/select2/select2.min.css' );
 			wp_enqueue_script( 'select2js', AVAILABLEURL_URI . 'assets/js/select2/select2.min.js', array( 'jquery' ), false, true );
 		}
-		wp_register_script( "availableurl-backend-script", AVAILABLEURL_URI . "assets/js/backend/backend.min.js", array( "jquery" ), false, true );
+		if( file_exists( AVAILABLEURL_DIR . "assets/js/backend/backend.min.js" ) ) {
+			wp_register_script( "availableurl-backend-script", AVAILABLEURL_URI . "assets/js/backend/backend.min.js", array( "jquery" ), false, true );
+		} else {
+			wp_register_script( "availableurl-backend-script", AVAILABLEURL_URI . "assets/js/backend/backend.js", array( "jquery" ), false, true );
+		}
 
-		wp_register_style( "availableurl-backend-style", AVAILABLEURL_URI . "assets/css/backend/backend.min.css" );
+		if( file_exists( AVAILABLEURL_DIR . "assets/css/backend/backend.min.css" ) ) {
+			wp_register_style( "availableurl-backend-style", AVAILABLEURL_URI . "assets/css/backend/backend.min.css" );
+		} else {
+			wp_register_style( "availableurl-backend-style", AVAILABLEURL_URI . "assets/css/backend/backend.css" );
+		}
 	}
+
+	public function reset() {
+		if( is_user_logged_in() ) {
+			if( !empty( $_GET['availableurl_reset_admin'] ) && $_GET['availableurl_reset_admin'] == 'true' ) {
+				$settings = Utils::get_settings();
+				$settings['administrator_status'] = false;
+				update_option( "availableurl", $settings );
+			}
+		}
+	} 
 
 	public function redirect() {
 		if( is_user_logged_in() ) {
-			$functions = Functions::get_instance();
-
+			$redirect = false;
 			$user = wp_get_current_user();
 
-			$settings = $functions->get_settings();
+			$settings = Utils::get_settings();
 
 			// Check this user is administrator and 'availableurl' is disabled for administrators so exit from this function.
 			if( in_array( "administrator", $user->roles ) ) {
@@ -87,103 +102,111 @@ class Init {
 			}
 			
 			// Get current url
-			$current_url = array(
-				'original' => $functions->get_url( true )
-			);
-			$current_url_info = $functions->other_url_types( $current_url['original'], true );
-			if( isset( $current_url_info[0] ) && is_array( $current_url_info[0] ) ) {
-				$current_url = array_merge( $current_url, $functions->other_url_types( $current_url['original'], true )[0] ); // This works for urls that have filename and file extension. Like: /options.php
-			} else {
-				$current_url = array_merge( $current_url, $functions->other_url_types( $current_url['original'], true )[1] ); // This works for urls thats just filename. Like: /wp-admin
-			}
-			$current_url = apply_filters( "availableurl/current_url", $current_url );
+			$current_url = Utils::get_url( true );
+			$current_url = apply_filters( "availableurl/redirect/current_url", $current_url );
+			$current_url_parse = parse_url( $current_url );
+			$current_url_main = trailingslashit( sprintf( "%s://%s%s", $current_url_parse['scheme'], $current_url_parse['host'], $current_url_parse['path'] ) );
 
-			$urls			= array();
-			$options		= array();
-
+			$urls		= array();
+			$options	= array();
 			// Get user role urls
 			foreach( $user->roles as $role ) {
-				$role_urls = $functions->get_role_options( $role );
-				foreach( $role_urls as $data ) {
-					if( isset( $data['url'] ) && $data['url'] ) {
-						$urls[]		= $data['url'];
-						$options[]	= $data['settings'];
-					}
-				}
+				$role_urls = Utils::get_data( $role, 'role' );
+				$urls = array_merge( $urls, wp_list_pluck( $role_urls, 'url' ) );
+				$options = array_merge( $options, wp_list_pluck( $role_urls, 'settings' ) );
 			}
 
 			// Get user urls
-			$user_urls = $functions->get_user_urls( $user->ID );
-			foreach( $user_urls as $data ) {
-				if( isset( $data['url'] ) && $data['url'] ) {
-					$urls[]		= $data['url'];
-					$options[]	= $data['settings'];
+			$user_urls = Utils::get_data( $user->ID, 'user' );
+			$urls = array_merge( $urls, wp_list_pluck( $user_urls, 'url' ) );
+			$options = array_merge( $options, wp_list_pluck( $user_urls, 'settings' ) );
+
+			$urls = apply_filters( "availableurl/redirect/urls/urls", $urls );
+			$options = apply_filters( "availableurl/redirect/urls/options", $options );
+			
+			// Unset empty arrays
+			foreach( $urls as $index => $url ) {
+				if( !$url ) {
+					unset( $urls[$index] );
+					unset( $options[$index] );
 				}
 			}
 
-			$urls = apply_filters( "availableurl/urls/urls", $urls );
-			$options = apply_filters( "availableurl/urls/options", $options );
-
 			// Create available URLs
+			$available_urls = array();
 			if( !empty( $urls ) ) {
-				$available_urls = array();
-				
-				// Add backend redirect to URL in available URLs
-				$settings['backend_redirect_to'] = $functions->other_url_types( $settings['backend_redirect_to'] );
-				$settings['backend_redirect_to'][] = add_query_arg( "redirect_by", "availableurl", $settings['backend_redirect_to'][0] );
+				// Add backend redirect URL to available URLs
+				$settings['backend_redirect_to'] = add_query_arg( "redirect_by", "availableurl", $settings['backend_redirect_to'] ); // Add query arg to base URL
+				$settings['backend_redirect_to'] = Utils::other_url_types( $settings['backend_redirect_to'] );
 				$available_urls = array_merge( $available_urls, $settings['backend_redirect_to'] );
 
-				// Add frontend redirect to URL in available URLs
-				$settings['frontend_redirect_to'] = $functions->other_url_types( $settings['frontend_redirect_to'] );
-				$settings['frontend_redirect_to'][] = add_query_arg( "redirect_by", "availableurl", $settings['frontend_redirect_to'][0] );
-				$available_urls = array_merge( $available_urls, $settings['frontend_redirect_to'] );
-				
 				// Set redirect url
-				if( is_admin() ) {
-					$key = array_key_last( $settings['backend_redirect_to'] );
-					$redirect_url = $settings['backend_redirect_to'][$key];
-				} else {
-					$key = array_key_last( $settings['frontend_redirect_to'] );
-					$redirect_url = $settings['frontend_redirect_to'][$key];
-				}
+				$redirect_url = add_query_arg( "redirect_by", "availableurl", $settings['backend_redirect_to'][0] );
 
 				// Add urls to available urls
+				// Set URL settings
+				$available_urls = apply_filters( "availableurl/urls/before_set_settings", $available_urls, $urls, $options );
 				foreach( $urls as $index => $url ) {
-					if( !$options[$index]['frontend'] ) {
-						$url_info = $functions->other_url_types( $url, true )[0];
-						if( $options[$index]['exactly_url'] ) { // For this, parameters should be in available url
-							$available_url = "{$url_info['dirname']}/{$url_info['filename']}.{$url_info['extension'][0]}";
-							if( $url_info['extension'][1] ) {
-								$available_url .= "?{$url_info['extension'][1]}";
-							}
-						} else {
-							$available_url = "{$url_info['dirname']}/{$url_info['filename']}.{$url_info['extension'][0]}";
+					$url = apply_filters( "availableurl/url/before_set_settings", $url, $options[$index] );
+
+					$url_parse = parse_url( $url );
+					$url_main = trailingslashit( sprintf( "%s://%s%s", $url_parse['scheme'], $url_parse['host'], $url_parse['path'] ) );
+					if( !empty( $options[$index]['inaccessibility'] ) && !empty( $options[$index]['regardless_params'] ) ) {
+						if( $current_url_main == $url_main ) {
+							$redirect = true;
+							break;
 						}
-						$available_urls[] = trailingslashit( $available_url ); // Add to available urls
+					}
+					
+					if( !empty( $options[$index]['inaccessibility'] ) ) {
+						continue;
+					}
+
+					if( !empty( $options[$index]['regardless_params'] ) ) {
+						if( $current_url_main == $url_main ) {
+							$available_urls[] = $current_url;
+							break;
+						}
+					}
+					
+					if( !empty( $url ) && is_string( $url ) ) {
+						$other_types = Utils::other_url_types( $url );
+						$available_urls = array_merge( $available_urls, $other_types );
 					}
 				}
-				
-				foreach( $available_urls as $url_index => $available_url ) { // Just for sure!
-					$available_urls[$url_index] = trailingslashit( $available_url );
-				}
-
-				$available_urls = array_unique( $available_urls ); // Remove duplicate items
-				
-				$available_url = apply_filters( "availableurl/available_urls", $available_urls );
-
-				if( !empty( $available_urls ) ) { // Redirect
-					if( !in_array( $current_url['original'], $available_urls ) ) {
-						$redirect_url = do_action( "availableurl/redirect_url", $redirect_url );
-						do_action( "availableurl/before_redirect", $redirect_url );
-
-						wp_redirect( $redirect_url );
-						die;
+				if( !$redirect ) {
+					$available_urls = apply_filters( "availableurl/urls/after_set_settings", $available_urls, $urls, $options );
+					
+					foreach( $available_urls as $url_index => $available_url ) { // Just for sure!
+						$available_urls[$url_index] = trailingslashit( $available_url );
 					}
+
+					// Sort all url queries
+					$current_url = Utils::sort_url_queries( $current_url );
+					foreach( $available_urls as $url_index => $available_url ) {
+						$available_urls[$url_index] = Utils::sort_url_queries( $available_url );
+					}
+
+					$available_urls = array_unique( $available_urls ); // Remove duplicate items
+
+					if( !in_array( $current_url, $available_urls ) ) {
+						$redirect = true;
+					}
+				}
+			}
+
+			$redirect = apply_filters( "availableurl/redirect", $redirect, $available_urls, $current_url );
+
+			// Check and redirect user
+			if( $redirect ) {
+				$redirect_url = apply_filters( "availableurl/redirect_url", $redirect_url, $available_urls, $current_url );
+				if( $redirect_url ) {
+					do_action( "availableurl/before_redirect", $redirect_url, $available_urls, $current_url );
+					wp_redirect( $redirect_url );
+					die;
 				}
 			}
 		}
 	}
 }
 Init::get_instance();
-
-// Todo: Regardless other parameters

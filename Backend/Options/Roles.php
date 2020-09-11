@@ -1,9 +1,10 @@
 <?php
 namespace AvailableURL\Backend\Options;
 
-use \AvailableURL\Includes\Classes\Functions as Functions;
+use AvailableURL\Utils as Utils;
 
 class Roles {
+	PRIVATE $PREFIX = "availableurl_";
 	/**
 	 * Creates or returns an instance of this class.
 	 *
@@ -34,15 +35,13 @@ class Roles {
 	}
 
 	public function view() {
-		$functions = Functions::get_instance();
-
 		$main_url = menu_page_url( "availableurl", false ); // Get url of the page
 		$main_url = add_query_arg( "tab", "roles", $main_url ); // Add tab to main url
 		
 		global $wp_roles;
 		$roles = $wp_roles->get_names(); // Get name and id of roles
 
-		$default_role = array_key_first( $roles );
+		$default_role = array_keys( $roles )[0];
 
 		$active_role = $default_role;
 		if( isset( $_GET['role'] ) && $_GET['role'] ) {
@@ -52,26 +51,28 @@ class Roles {
 		$this->save( $active_role );
 
 		// Get options of active role
-		$urls = $functions->get_role_options( $active_role );
+		$urls = Utils::get_data( $active_role, 'role' );
+
+		$url_settings = Utils::get_url_settings();
 		?>
 		<h2><?php _e( "Roles", "availableurl" ) ?></h2>
-		<h3><?php echo $roles[$active_role] ?></h3>
+		<h3><?php echo translate_user_role( $roles[$active_role] ) ?></h3>
 
 		<table class="form-table">
 			<tr>
 				<th>
-					<label for="availableurl_select_role">
+					<label for="<?php echo $this->PREFIX ?>select_role">
 						<?php _e( "Select role", "availableurl" ) ?>
 					</label>
 				</th>
 
 				<td>
-					<select id="availableurl_select_options" class="availableurl_select">
+					<select id="<?php echo $this->PREFIX ?>select_options" class="availableurl_select">
 						<?php
 						foreach( $roles as $role_id => $role_name ) {
 							$role_url = add_query_arg( "role", $role_id, $main_url );
 							?>
-							<option value="<?php echo $role_url ?>" <?php selected( $role_id, $active_role ) ?>><?php echo $role_name ?></option>
+							<option value="<?php echo $role_url ?>" <?php selected( $role_id, $active_role ) ?>><?php echo translate_user_role( $role_name ) ?></option>
 						<?php } ?>
 					</select>
 				</td>
@@ -79,9 +80,14 @@ class Roles {
 		</table>
 
 		<hr>
-
+		<div id="availableurl_templates">
+			<?php
+			$template_type = "role";
+			include_once( AVAILABLEURL_DIR . "Includes/Templates/url_row.php" );
+			?>
+		</div>
 		<form method="post" action="">
-			<table class="form-table" id="availableurl_table_urls">
+			<table class="form-table" id="<?php echo $this->PREFIX ?>table_urls">
 				<thead>
 					<tr>
 						<th><?php _e( "Title" ) ?></th>
@@ -91,26 +97,36 @@ class Roles {
 				</thead>
 				<tbody>
 					<?php foreach( $urls as $id => $data ) { ?>
-						<tr class="availableurl_role_url_row" id="availableurl_role_url_<?php echo $id ?>" data-id="<?php echo $id ?>">
+						<tr class="<?php echo $this->PREFIX ?>role_url_row" id="<?php echo $this->PREFIX ?>role_url_<?php echo $id ?>" data-id="<?php echo $id ?>">
 							<td>
-								<input type="text" name="availableurl_title[]" id="availableurl_title_<?php echo $id ?>" value="<?php echo $data['title'] ?>">
+								<input type="text" name="<?php echo $this->PREFIX ?>title[]" id="<?php echo $this->PREFIX ?>title_<?php echo $id ?>" value="<?php echo $data['title'] ?>">
 							</td>
 
 							<td>
-								<input type="url" name="availableurl_url[]" id="availableurl_url_<?php echo $id ?>" placeholder="<?php _e( "http://... or https://...", 'availableurl' ) ?>" value="<?php echo $data['url'] ?>">
+								<input type="url" name="<?php echo $this->PREFIX ?>url[]" id="<?php echo $this->PREFIX ?>url_<?php echo $id ?>" placeholder="<?php _e( "http://... or https://...", 'availableurl' ) ?>" value="<?php echo $data['url'] ?>">
 							</td>
 
 							<td>
-								<select name="availableurl_settings_<?php echo $id ?>[]" id="availableurl_settings_<?php echo $id ?>" class="availableurl_select" data-placeholder="<?php _e( "Select settings", "availableurl" ) ?>" multiple data-width="100%">
-									<option value="frontend" <?php selected( true, $data['settings']['frontend'] ) ?>><?php _e( "It's a frontend URL", "availableurl" ) ?></option>
-									<option value="exactly_url" <?php selected( true, $data['settings']['exactly_url'] ) ?>><?php _e( "Exactly this address", "availableurl" ) ?></option>
+								<select name="<?php echo $this->PREFIX ?>settings_<?php echo $id ?>[]" id="<?php echo $this->PREFIX ?>settings_<?php echo $id ?>" class="availableurl_select" data-placeholder="<?php _e( "Select settings", "availableurl" ) ?>" multiple data-width="100%">
+									<?php
+									if( $url_settings ) {
+										foreach( $url_settings as $setting_id => $setting_data ) {
+											if( empty( $data['settings'][$setting_id] ) ) {
+												$data['settings'][$setting_id] = $setting_data['default'];
+											}
+											?>
+											<option value="<?php echo $setting_id ?>" <?php selected( true, $data['settings'][$setting_id] ) ?>><?php echo $setting_data['title'] ?></option>
+											<?php
+										}
+									}
+									?>
 								</select>
 							</td>
 						</tr>
 					<?php } ?>
 				</tbody>
 			</table>
-			<button class="button" id="availableurl_add_url">
+			<button class="button" id="<?php echo $this->PREFIX ?>add_url">
 				<?php _e( "+ Add URL", "availableurl" ) ?>
 			</button>
 			<?php submit_button() ?>
@@ -120,10 +136,8 @@ class Roles {
 
 	private function save( $active_role ) {
 		if( !empty( $_POST ) ) {
-			if( isset( $_POST['availableurl_url'] ) && !empty( $_POST['availableurl_url'] ) ) {
-				$functions = Functions::get_instance();
-
-				$urls = $_POST['availableurl_url'];
+			if( isset( $_POST["{$this->PREFIX}url"] ) && !empty( $_POST["{$this->PREFIX}url"] ) ) {
+				$urls = $_POST["{$this->PREFIX}url"];
 
 				$result = array();
 				foreach( $urls as $index => $url ) {
@@ -133,34 +147,27 @@ class Roles {
 						$url	= stripslashes( $url );
 						
 						// Get title
-						$title 		= "";
-						if( isset( $_POST['availableurl_title'][$index] ) && $_POST['availableurl_title'][$index] ) {
-							$title	= sanitize_text_field( $_POST['availableurl_title'][$index] );
+						$title = "";
+						if( isset( $_POST["{$this->PREFIX}title"][$index] ) && $_POST["{$this->PREFIX}title"][$index] ) {
+							$title	= sanitize_text_field( $_POST["{$this->PREFIX}title"][$index] );
 						}
 
 						// Get setting data
-						$settings	= array(
-							'frontend'		=> false,
-							'exactly_url'	=> false
-						);
-						if( isset( $_POST["availableurl_settings_{$index}"] ) && !empty( $_POST["availableurl_settings_{$index}"] ) ) {
-							foreach( $settings as $setting_name => $value ) {
-								foreach( $_POST["availableurl_settings_{$index}"] as $post_setting_index => $post_setting_value ) {
-									if( $post_setting_value == $setting_name ) {
-										$settings[$setting_name] = true;
-									}
-								}
+						$settings = array();
+						if( !empty( $_POST["{$this->PREFIX}settings_{$index}"] ) ) {
+							foreach( $_POST["{$this->PREFIX}settings_{$index}"] as $setting_name ) {
+								$settings[$setting_name] = true;
 							}
 						}
 						
-						$result[$active_role][] = array(
+						$result[] = array(
 							'title'		=> $title,
 							'url'		=> $url,
 							'settings'	=> $settings
 						);
 					}
 				}
-				update_option( "availableurl_role", $result );
+				update_option( "{$this->PREFIX}role_{$active_role}", $result );
 
 				return true;
 			}
