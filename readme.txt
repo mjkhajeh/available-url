@@ -3,11 +3,11 @@ Contributors: mjkhajeh
 Donate link: https://zarinp.al/@zantium
 Tags: url,available url,availableurl,urls,demo creator,create demo,user urls,role urls,admin
 Requires at least: 4.7
-Tested up to: 5.5
-Stable tag: 4.6
+Tested up to: 5.7.2
+Stable tag: 1.3.2.9
 Requires PHP: 5.3
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+License: WTFPL
+License URI: https://en.wikipedia.org/wiki/WTFPL
 
 Let users just view urls you want. And create demo for your plugins & themes easily.
 
@@ -26,7 +26,7 @@ For use that, Just open this URL(Before that, Replace "example.com" with your do
 = One more thing about Available URL: =
 Available URL uses i18n, So you can translate it for your language.
 
-You can use [GitHub](https://github.com/mjkhajeh/availableurl) plugin page to development it.
+You can use [GitHub](https://github.com/mjkhajeh/available-url) plugin page to development it.
 
 == Changelog ==
 = 1.0.0.0 =

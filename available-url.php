@@ -3,7 +3,7 @@
 Plugin Name: Available url
 Plugin URI: https://wordpress.org/plugins/available-url
 Description: Let users just view urls you want
-Version: 1.3.2.7
+Version: 1.3.2.9
 Author: Mohammad Jafar Khajeh
 Author URI: https://mjkhajeh.ir
 Text Domain: availableurl
